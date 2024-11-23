@@ -85,8 +85,11 @@
         <label for="otherDeductions">รายการลดหย่อนอื่น ๆ (รวม) (บาท):</label>
         <input type="number" id="otherDeductions" placeholder="กรอกค่าลดหย่อนอื่น ๆ เช่น บุตร, ประกัน">
 
-        <label for="donation">เงินบริจาค (บาท):</label>
-        <input type="number" id="donation" placeholder="กรอกเงินบริจาค (ถ้ามี)">
+        <label for="donationDouble">เงินบริจาค (หักสองเท่า) (บาท):</label>
+        <input type="number" id="donationDouble" placeholder="กรอกเงินบริจาคเพื่อการศึกษา, โรงพยาบาล">
+
+        <label for="donationSingle">เงินบริจาค (หักหนึ่งเท่า) (บาท):</label>
+        <input type="number" id="donationSingle" placeholder="กรอกเงินบริจาคทั่วไป">
 
         <button onclick="calculateTax()">คำนวณภาษี</button>
 
@@ -99,7 +102,8 @@
             const socialSecurity = parseFloat(document.getElementById('socialSecurity').value || 0);
             const providentFund = parseFloat(document.getElementById('providentFund').value || 0);
             const otherDeductions = parseFloat(document.getElementById('otherDeductions').value || 0);
-            const donation = parseFloat(document.getElementById('donation').value || 0);
+            const donationDouble = parseFloat(document.getElementById('donationDouble').value || 0); // บริจาคสองเท่า
+            const donationSingle = parseFloat(document.getElementById('donationSingle').value || 0); // บริจาคหนึ่งเท่า
 
             if (monthlyIncome <= 0) {
                 alert("กรุณากรอกข้อมูลรายได้ที่ถูกต้อง");
@@ -127,11 +131,18 @@
             // รายได้หลังหักลดหย่อน
             const afterDeductions = Math.max(afterExpenses - totalDeductions, 0);
 
-            // คำนวณเงินบริจาค (สองเท่า)
-            const donationDeduction = Math.min(donation, afterDeductions * 0.1) * 2;
+            // คำนวณเงินบริจาคสองเท่า
+            const maxDonationDeductible = afterDeductions * 0.1;
+            const donationDoubleDeduction = Math.min(donationDouble, maxDonationDeductible) * 2;
 
-            // เงินได้สุทธิหลังบริจาค
-            const netIncome = Math.max(afterDeductions - donationDeduction, 0);
+            // รายได้หลังหักบริจาคสองเท่า
+            const afterDoubleDonation = Math.max(afterDeductions - donationDoubleDeduction, 0);
+
+            // คำนวณเงินบริจาคหนึ่งเท่า
+            const donationSingleDeduction = Math.min(donationSingle, afterDoubleDonation * 0.1);
+
+            // เงินได้สุทธิหลังหักบริจาค
+            const netIncome = Math.max(afterDoubleDonation - donationSingleDeduction, 0);
 
             // คำนวณภาษีแบบอัตราก้าวหน้า
             const taxRates = [
@@ -166,8 +177,9 @@
                 รายได้ทั้งปี: ${annualIncome.toLocaleString()} บาท<br>
                 เงินได้ที่ยกเว้น (ประกันสังคม, กองทุน): ${totalExemptions.toLocaleString()} บาท<br>
                 ค่าใช้จ่ายเหมาจ่าย (ไม่เกิน 100,000): ${expenses.toLocaleString()} บาท<br>
-                รายได้หลังหักลดหย่อน: ${afterDeductions.toLocaleString()} บาท<br>
-                เงินบริจาคสองเท่าที่ลดหย่อนได้: ${donationDeduction.toLocaleString()} บาท<br>
+                รายได้หลังลดหย่อน: ${afterDeductions.toLocaleString()} บาท<br>
+                บริจาคสองเท่าที่ลดหย่อนได้: ${donationDoubleDeduction.toLocaleString()} บาท<br>
+                บริจาคหนึ่งเท่าที่ลดหย่อนได้: ${donationSingleDeduction.toLocaleString()} บาท<br>
                 เงินได้สุทธิ: ${netIncome.toLocaleString()} บาท<br>
                 <strong>ภาษีที่ต้องจ่าย: ${tax.toLocaleString()} บาท</strong>
             `;
