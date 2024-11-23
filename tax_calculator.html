@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรแกรมคำนวณภาษี 2567</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-size: 1em;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:active {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>โปรแกรมคำนวณภาษี 2567</h1>
+        <label for="monthlyIncome">รายได้ต่อเดือน (บาท):</label>
+        <input type="number" id="monthlyIncome" placeholder="กรอกเงินเดือนต่อเดือน">
+
+        <label for="socialSecurity">ประกันสังคม (ต่อเดือน) (บาท):</label>
+        <input type="number" id="socialSecurity" placeholder="เช่น 750 บาท">
+
+        <label for="providentFund">เงินสะสมกองทุนสำรองเลี้ยงชีพ (ต่อเดือน) (บาท):</label>
+        <input type="number" id="providentFund" placeholder="กรอกเงินสะสม">
+
+        <label for="otherDeductions">รายการลดหย่อนอื่น ๆ (รวม) (บาท):</label>
+        <input type="number" id="otherDeductions" placeholder="กรอกค่าลดหย่อนอื่น ๆ เช่น บุตร, ประกัน">
+
+        <label for="donation">เงินบริจาค (บาท):</label>
+        <input type="number" id="donation" placeholder="กรอกเงินบริจาค (ถ้ามี)">
+
+        <button onclick="calculateTax()">คำนวณภาษี</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function calculateTax() {
+            // ดึงค่าจากอินพุต
+            const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value || 0);
+            const socialSecurity = parseFloat(document.getElementById('socialSecurity').value || 0);
+            const providentFund = parseFloat(document.getElementById('providentFund').value || 0);
+            const otherDeductions = parseFloat(document.getElementById('otherDeductions').value || 0);
+            const donation = parseFloat(document.getElementById('donation').value || 0);
+
+            // ตรวจสอบการป้อนข้อมูล
+            if (monthlyIncome <= 0) {
+                alert("กรุณากรอกข้อมูลรายได้ที่ถูกต้อง");
+                return;
+            }
+
+            // คำนวณรายได้ทั้งปี
+            const annualIncome = monthlyIncome * 12;
+
+            // คำนวณเงินได้ที่ยกเว้น
+            const totalExemptions = (socialSecurity + providentFund) * 12;
+
+            // รายได้หลังหักเงินได้ที่ยกเว้น
+            const incomeAfterExemptions = annualIncome - totalExemptions;
+
+            // คำนวณค่าใช้จ่ายเหมาจ่าย
+            const expenses = Math.min(incomeAfterExemptions * 0.5, 100000);
+
+            // รายได้หลังหักค่าใช้จ่ายและลดหย่อน
+            const totalDeductions = 60000 + otherDeductions + expenses;
+            const incomeAfterDeductions = Math.max(incomeAfterExemptions - totalDeductions, 0);
+
+            // คำนวณเงินบริจาคสองเท่า
+            const maxDonationDeductible = incomeAfterDeductions * 0.1;
+            const donationDeduction = Math.min(donation, maxDonationDeductible) * 2;
+
+            // เงินได้สุทธิ
+            const netIncome = Math.max(incomeAfterDeductions - donationDeduction, 0);
+
+            // คำนวณภาษีตามอัตราก้าวหน้า
+            let tax = 0;
+            const taxBrackets = [
+                { limit: 150000, rate: 0 },
+                { limit: 300000, rate: 0.10 },
+                { limit: 500000, rate: 0.15 },
+                { limit: 1000000, rate: 0.20 },
+                { limit: 2000000, rate: 0.25 },
+                { limit: 5000000, rate: 0.30 },
+                { limit: Infinity, rate: 0.35 }
+            ];
+
+            let remainingIncome = netIncome;
+
+            for (let i = 0; i < taxBrackets.length - 1; i++) {
+                const { limit, rate } = taxBrackets[i];
+                const nextLimit = taxBrackets[i + 1].limit;
+
+                if (remainingIncome > limit) {
+                    const taxable = Math.min(remainingIncome, nextLimit) - limit;
+                    tax += taxable * rate;
+                } else {
+                    break;
+                }
+            }
+
+            // แสดงผล
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <strong>ผลการคำนวณ:</strong><br>
+                รายได้ทั้งปี: ${annualIncome.toLocaleString()} บาท<br>
+                เงินได้สุทธิ: ${netIncome.toLocaleString()} บาท<br>
+                ภาษีที่ต้องจ่าย: ${tax.toLocaleString()} บาท
+            `;
+        }
+    </script>
+</body>
+</html>
