@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>โปรแกรมคำนวณภาษี 2567</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,7 +47,7 @@
 
         button {
             width: 100%;
-            margin-top: 20px;
+            margin-top: 10px;
             padding: 10px;
             font-size: 1em;
             background-color: #007bff;
@@ -92,6 +93,8 @@
         <input type="number" id="donationSingle" placeholder="กรอกเงินบริจาคทั่วไป">
 
         <button onclick="calculateTax()">คำนวณภาษี</button>
+        <button onclick="resetForm()">รีเซ็ต</button>
+        <button onclick="downloadPDF()">ดาวน์โหลดผลลัพธ์เป็น PDF</button>
 
         <div class="result" id="result"></div>
     </div>
@@ -102,49 +105,27 @@
             const socialSecurity = parseFloat(document.getElementById('socialSecurity').value || 0);
             const providentFund = parseFloat(document.getElementById('providentFund').value || 0);
             const otherDeductions = parseFloat(document.getElementById('otherDeductions').value || 0);
-            const donationDouble = parseFloat(document.getElementById('donationDouble').value || 0); // บริจาคสองเท่า
-            const donationSingle = parseFloat(document.getElementById('donationSingle').value || 0); // บริจาคหนึ่งเท่า
+            const donationDouble = parseFloat(document.getElementById('donationDouble').value || 0);
+            const donationSingle = parseFloat(document.getElementById('donationSingle').value || 0);
 
             if (monthlyIncome <= 0) {
                 alert("กรุณากรอกข้อมูลรายได้ที่ถูกต้อง");
                 return;
             }
 
-            // คำนวณรายได้ทั้งปี
             const annualIncome = monthlyIncome * 12;
-
-            // คำนวณเงินได้ที่ยกเว้น
             const totalExemptions = (socialSecurity + providentFund) * 12;
-
-            // รายได้หลังหักเงินได้ที่ยกเว้น
             const incomeAfterExemptions = annualIncome - totalExemptions;
-
-            // คำนวณค่าใช้จ่ายเหมาจ่าย (ไม่เกิน 100,000 บาท)
             const expenses = Math.min(incomeAfterExemptions * 0.5, 100000);
-
-            // รายได้หลังหักค่าใช้จ่าย
             const afterExpenses = Math.max(incomeAfterExemptions - expenses, 0);
-
-            // ลดหย่อนพื้นฐาน 60,000 + ลดหย่อนอื่น ๆ
             const totalDeductions = 60000 + otherDeductions;
-
-            // รายได้หลังหักลดหย่อน
             const afterDeductions = Math.max(afterExpenses - totalDeductions, 0);
-
-            // คำนวณเงินบริจาคสองเท่า
             const maxDonationDeductible = afterDeductions * 0.1;
             const donationDoubleDeduction = Math.min(donationDouble, maxDonationDeductible) * 2;
-
-            // รายได้หลังหักบริจาคสองเท่า
             const afterDoubleDonation = Math.max(afterDeductions - donationDoubleDeduction, 0);
-
-            // คำนวณเงินบริจาคหนึ่งเท่า
             const donationSingleDeduction = Math.min(donationSingle, afterDoubleDonation * 0.1);
-
-            // เงินได้สุทธิหลังหักบริจาค
             const netIncome = Math.max(afterDoubleDonation - donationSingleDeduction, 0);
 
-            // คำนวณภาษีแบบอัตราก้าวหน้า
             const taxRates = [
                 { limit: 150000, rate: 0 },
                 { limit: 300000, rate: 0.10 },
@@ -170,7 +151,6 @@
                 }
             }
 
-            // แสดงผลลัพธ์พร้อมคำอธิบาย
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `
                 <strong>ผลการคำนวณ:</strong><br>
@@ -184,6 +164,30 @@
                 <strong>ภาษีที่ต้องจ่าย: ${tax.toLocaleString()} บาท</strong>
             `;
         }
+
+        function resetForm() {
+            document.getElementById('monthlyIncome').value = '';
+            document.getElementById('socialSecurity').value = '';
+            document.getElementById('providentFund').value = '';
+            document.getElementById('otherDeductions').value = '';
+            document.getElementById('donationDouble').value = '';
+            document.getElementById('donationSingle').value = '';
+            document.getElementById('result').innerHTML = '';
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const resultDiv = document.getElementById('result').innerHTML;
+            if (!resultDiv) {
+                alert("กรุณาคำนวณภาษีก่อนดาวน์โหลด PDF");
+                return;
+            }
+            const doc = new jsPDF();
+            doc.text("ผลการคำนวณภาษี 2567", 10, 10);
+            doc.fromHTML(resultDiv, 10, 20);
+            doc.save("tax_result.pdf");
+        }
     </script>
 </body>
 </html>
+
