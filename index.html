@@ -69,6 +69,23 @@
             font-size: 1em;
             line-height: 1.5;
         }
+
+        .note {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -94,9 +111,16 @@
 
         <button onclick="calculateTax()">คำนวณภาษี</button>
         <button onclick="resetForm()">รีเซ็ต</button>
-        <button onclick="downloadPDF()">ดาวน์โหลดผลลัพธ์เป็น PDF</button>
 
         <div class="result" id="result"></div>
+
+        <div class="note">
+            หมายเหตุ: นี่เป็นเพียงการคำนวณเบื้องต้นเพื่อการวางแผนภาษีเท่านั้น หากต้องการคำนวณแบบละเอียดและถูกต้อง โปรดใช้ Application <b>RDSMARTTAX</b> ของกรมสรรพากร หรือระบบ <b>e-Filing</b> ของกรมสรรพากร
+        </div>
+
+        <div class="footer">
+            เพจ "การแบ่งปันคืองานของเรา"
+        </div>
     </div>
 
     <script>
@@ -174,20 +198,6 @@
             document.getElementById('donationSingle').value = '';
             document.getElementById('result').innerHTML = '';
         }
-
-        function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const resultDiv = document.getElementById('result').innerHTML;
-            if (!resultDiv) {
-                alert("กรุณาคำนวณภาษีก่อนดาวน์โหลด PDF");
-                return;
-            }
-            const doc = new jsPDF();
-            doc.text("ผลการคำนวณภาษี 2567", 10, 10);
-            doc.fromHTML(resultDiv, 10, 20);
-            doc.save("tax_result.pdf");
-        }
     </script>
 </body>
 </html>
-
