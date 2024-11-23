@@ -95,14 +95,12 @@
 
     <script>
         function calculateTax() {
-            // ดึงค่าจากอินพุต
             const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value || 0);
             const socialSecurity = parseFloat(document.getElementById('socialSecurity').value || 0);
             const providentFund = parseFloat(document.getElementById('providentFund').value || 0);
             const otherDeductions = parseFloat(document.getElementById('otherDeductions').value || 0);
             const donation = parseFloat(document.getElementById('donation').value || 0);
 
-            // ตรวจสอบการป้อนข้อมูล
             if (monthlyIncome <= 0) {
                 alert("กรุณากรอกข้อมูลรายได้ที่ถูกต้อง");
                 return;
@@ -117,53 +115,61 @@
             // รายได้หลังหักเงินได้ที่ยกเว้น
             const incomeAfterExemptions = annualIncome - totalExemptions;
 
-            // คำนวณค่าใช้จ่ายเหมาจ่าย
+            // คำนวณค่าใช้จ่ายเหมาจ่าย (ไม่เกิน 100,000 บาท)
             const expenses = Math.min(incomeAfterExemptions * 0.5, 100000);
 
-            // รายได้หลังหักค่าใช้จ่ายและลดหย่อน
-            const totalDeductions = 60000 + otherDeductions + expenses;
-            const incomeAfterDeductions = Math.max(incomeAfterExemptions - totalDeductions, 0);
+            // รายได้หลังหักค่าใช้จ่าย
+            const afterExpenses = Math.max(incomeAfterExemptions - expenses, 0);
 
-            // คำนวณเงินบริจาคสองเท่า
-            const maxDonationDeductible = incomeAfterDeductions * 0.1;
-            const donationDeduction = Math.min(donation, maxDonationDeductible) * 2;
+            // ลดหย่อนพื้นฐาน 60,000 + ลดหย่อนอื่น ๆ
+            const totalDeductions = 60000 + otherDeductions;
 
-            // เงินได้สุทธิ
-            const netIncome = Math.max(incomeAfterDeductions - donationDeduction, 0);
+            // รายได้หลังหักลดหย่อน
+            const afterDeductions = Math.max(afterExpenses - totalDeductions, 0);
 
-            // คำนวณภาษีตามอัตราก้าวหน้า
-            let tax = 0;
-            const taxBrackets = [
+            // คำนวณเงินบริจาค (สองเท่า)
+            const donationDeduction = Math.min(donation, afterDeductions * 0.1) * 2;
+
+            // เงินได้สุทธิหลังบริจาค
+            const netIncome = Math.max(afterDeductions - donationDeduction, 0);
+
+            // คำนวณภาษีแบบอัตราก้าวหน้า
+            const taxRates = [
                 { limit: 150000, rate: 0 },
                 { limit: 300000, rate: 0.10 },
                 { limit: 500000, rate: 0.15 },
                 { limit: 1000000, rate: 0.20 },
                 { limit: 2000000, rate: 0.25 },
                 { limit: 5000000, rate: 0.30 },
-                { limit: Infinity, rate: 0.35 }
+                { limit: Infinity, rate: 0.35 },
             ];
 
+            let tax = 0;
             let remainingIncome = netIncome;
 
-            for (let i = 0; i < taxBrackets.length - 1; i++) {
-                const { limit, rate } = taxBrackets[i];
-                const nextLimit = taxBrackets[i + 1].limit;
+            for (let i = 0; i < taxRates.length - 1; i++) {
+                const { limit, rate } = taxRates[i];
+                const nextLimit = taxRates[i + 1].limit;
 
                 if (remainingIncome > limit) {
-                    const taxable = Math.min(remainingIncome, nextLimit) - limit;
-                    tax += taxable * rate;
+                    const taxableAmount = Math.min(remainingIncome, nextLimit) - limit;
+                    tax += taxableAmount * rate;
                 } else {
                     break;
                 }
             }
 
-            // แสดงผล
+            // แสดงผลลัพธ์พร้อมคำอธิบาย
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `
                 <strong>ผลการคำนวณ:</strong><br>
                 รายได้ทั้งปี: ${annualIncome.toLocaleString()} บาท<br>
+                เงินได้ที่ยกเว้น (ประกันสังคม, กองทุน): ${totalExemptions.toLocaleString()} บาท<br>
+                ค่าใช้จ่ายเหมาจ่าย (ไม่เกิน 100,000): ${expenses.toLocaleString()} บาท<br>
+                รายได้หลังหักลดหย่อน: ${afterDeductions.toLocaleString()} บาท<br>
+                เงินบริจาคสองเท่าที่ลดหย่อนได้: ${donationDeduction.toLocaleString()} บาท<br>
                 เงินได้สุทธิ: ${netIncome.toLocaleString()} บาท<br>
-                ภาษีที่ต้องจ่าย: ${tax.toLocaleString()} บาท
+                <strong>ภาษีที่ต้องจ่าย: ${tax.toLocaleString()} บาท</strong>
             `;
         }
     </script>
