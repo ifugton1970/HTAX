@@ -3,201 +3,345 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>โปรแกรมคำนวณภาษี 2567</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <title>โปรแกรมวางแผนภาษีมนุษย์เงินเดือน</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f4f4f9;
+            background-color: #f9f9f9;
+            margin: 20px;
         }
-
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
         .container {
+            max-width: 1200px;
+            margin: auto;
             background: #fff;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 600px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
         }
-
-        h1 {
-            text-align: center;
-            font-size: 1.5em;
+        .section {
+            border: 1px solid #ddd;
+            border-radius: 8px;
             margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f7f9fc;
         }
-
-        label {
-            display: block;
-            margin-top: 10px;
-            font-size: 1em;
-        }
-
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            font-size: 1em;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        button {
-            width: 100%;
-            margin-top: 10px;
+        .section h2 {
+            background-color: #e7eff6;
             padding: 10px;
-            font-size: 1em;
-            background-color: #007bff;
-            color: #fff;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #333;
+            text-align: center;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            align-items: center;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+        }
+        .form-group label {
+            flex: 1;
+            font-weight: bold;
+            color: #555;
+            margin-right: 10px;
+        }
+        .form-group input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: right;
+            width: 100%;
+        }
+        .note {
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .result {
+            padding: 20px;
+            background-color: #e7f5e7;
+            border: 1px solid #d4ebd4;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .result strong {
+            color: #2c662d;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
         }
-
-        button:active {
-            background-color: #0056b3;
+        button:hover {
+            background-color: #45a049;
         }
-
-        .result {
-            margin-top: 20px;
-            padding: 10px;
-            background: #f9f9f9;
-            border-radius: 5px;
-            font-size: 1em;
-            line-height: 1.5;
+        button.reset {
+            background-color: #f44336;
         }
-
-        .note {
-            margin-top: 20px;
-            padding: 10px;
-            background: #e9ecef;
-            border-radius: 5px;
-            font-size: 0.9em;
-            line-height: 1.5;
-            color: #333;
+        button.reset:hover {
+            background-color: #d32f2f;
         }
-
-        .footer {
-            margin-top: 20px;
+        footer {
             text-align: center;
-            font-size: 0.9em;
-            color: #555;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #666;
         }
     </style>
 </head>
 <body>
+    <h1>โปรแกรมวางแผนภาษีมนุษย์เงินเดือน</h1>
     <div class="container">
-        <h1>โปรแกรมคำนวณภาษี 2567</h1>
-        <label for="monthlyIncome">รายได้ต่อเดือน (บาท):</label>
-        <input type="number" id="monthlyIncome" placeholder="กรอกเงินเดือนต่อเดือน">
-
-        <label for="socialSecurity">ประกันสังคม (ต่อเดือน) (บาท):</label>
-        <input type="number" id="socialSecurity" placeholder="เช่น 750 บาท">
-
-        <label for="providentFund">เงินสะสมกองทุนสำรองเลี้ยงชีพ (ต่อเดือน) (บาท):</label>
-        <input type="number" id="providentFund" placeholder="กรอกเงินสะสม">
-
-        <label for="otherDeductions">รายการลดหย่อนอื่น ๆ (รวม) (บาท):</label>
-        <input type="number" id="otherDeductions" placeholder="กรอกค่าลดหย่อนอื่น ๆ เช่น บุตร, ประกัน">
-
-        <label for="donationDouble">เงินบริจาค (หักสองเท่า) (บาท):</label>
-        <input type="number" id="donationDouble" placeholder="กรอกเงินบริจาคเพื่อการศึกษา, โรงพยาบาล">
-
-        <label for="donationSingle">เงินบริจาค (หักหนึ่งเท่า) (บาท):</label>
-        <input type="number" id="donationSingle" placeholder="กรอกเงินบริจาคทั่วไป">
-
-        <button onclick="calculateTax()">คำนวณภาษี</button>
-        <button onclick="resetForm()">รีเซ็ต</button>
-
-        <div class="result" id="result"></div>
-
-        <div class="note">
-            หมายเหตุ: นี่เป็นเพียงการคำนวณเบื้องต้นเพื่อการวางแผนภาษีเท่านั้น หากต้องการคำนวณแบบละเอียดและถูกต้อง โปรดใช้ Application <b>RDSMARTTAX</b> ของกรมสรรพากร หรือระบบ <b>e-Filing</b> ของกรมสรรพากร
+        <!-- Section 1 -->
+        <div class="section">
+            <h2>ข้อมูลเงินเดือนและภาษีหัก ณ ที่จ่าย</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>เงินเดือน (บาท):</label>
+                    <input type="text" id="monthly_salary" placeholder="กรอกเงินเดือน">
+                </div>
+                <div class="form-group">
+                    <label>ภาษีหัก ณ ที่จ่าย (บาท/เดือน):</label>
+                    <input type="text" id="withheld_tax" placeholder="กรอกภาษีหัก ณ ที่จ่าย">
+                </div>
+            </div>
         </div>
 
-        <div class="footer">
-            เพจ "การแบ่งปันคืองานของเรา"
+        <!-- Section 2 -->
+        <div class="section">
+            <h2>เงินได้ยกเว้น</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>เงินที่หักเข้ากบข. (บาท/เดือน):</label>
+                    <input type="text" id="gpf_contribution" placeholder="กรอกเงิน กบข.">
+                </div>
+                <div class="form-group">
+                    <label>เงินกองทุนสำรองเลี้ยงชีพ (บาท/เดือน):</label>
+                    <input type="text" id="provident_fund" placeholder="กรอกเงินกองทุนสำรอง">
+                </div>
+                <div class="form-group">
+                    <label>กรณีคนพิการ (หัก 190,000 บาท):</label>
+                    <input type="text" id="disability_allowance" value="0" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3 -->
+        <div class="section">
+            <h2>รายการลดหย่อน</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ลดหย่อนส่วนตัว (60,000 บาท):</label>
+                    <input type="text" value="60,000" readonly>
+                </div>
+                <div class="form-group">
+                    <label>ค่าลดหย่อนคู่สมรส:</label>
+                    <input type="text" id="spouse_allowance" placeholder="กรอกจำนวน">
+                </div>
+                <div class="form-group">
+                    <label>ค่าลดหย่อนบุตร:</label>
+                    <input type="text" id="child_allowance" placeholder="กรอกจำนวน">
+                </div>
+                <div class="form-group">
+                    <label>ค่าลดหย่อนบิดา/มารดา:</label>
+                    <input type="text" id="parent_allowance" placeholder="กรอกจำนวน">
+                </div>
+                <div class="form-group">
+                    <label>ค่าลดหย่อนอื่น ๆ:</label>
+                    <input type="text" id="other_deductions" placeholder="กรอกจำนวน">
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4 -->
+        <div class="section">
+            <h2>เงินบริจาค</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>เงินบริจาค (สองเท่า):</label>
+                    <input type="text" id="donations_double" placeholder="กรอกจำนวน">
+                </div>
+                <div class="form-group">
+                    <label>เงินบริจาค (หนึ่งเท่า):</label>
+                    <input type="text" id="donations_single" placeholder="กรอกจำนวน">
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="button-container">
+            <button onclick="calculateTax()">คำนวณภาษี</button>
+            <button class="reset" onclick="resetForm()">รีเซต</button>
+        </div>
+
+        <!-- Result -->
+        <div id="result" class="result"></div>
+
+        <!-- Note -->
+        <div class="note">
+            *หมายเหตุ: การคำนวณเบื้องต้น โปรดตรวจสอบกับกรมสรรพากรอีกครั้ง
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer>
+        <p>การแบ่งปัน คืองานของเรา</p>
+    </footer>
+
     <script>
-        function calculateTax() {
-            const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value || 0);
-            const socialSecurity = parseFloat(document.getElementById('socialSecurity').value || 0);
-            const providentFund = parseFloat(document.getElementById('providentFund').value || 0);
-            const otherDeductions = parseFloat(document.getElementById('otherDeductions').value || 0);
-            const donationDouble = parseFloat(document.getElementById('donationDouble').value || 0);
-            const donationSingle = parseFloat(document.getElementById('donationSingle').value || 0);
+        function formatNumber(num) {
+            if (!num) return '';
+            return parseFloat(num).toLocaleString('th-TH');
+        }
 
-            if (monthlyIncome <= 0) {
-                alert("กรุณากรอกข้อมูลรายได้ที่ถูกต้อง");
-                return;
-            }
-
-            const annualIncome = monthlyIncome * 12;
-            const totalExemptions = (socialSecurity + providentFund) * 12;
-            const incomeAfterExemptions = annualIncome - totalExemptions;
-            const expenses = Math.min(incomeAfterExemptions * 0.5, 100000);
-            const afterExpenses = Math.max(incomeAfterExemptions - expenses, 0);
-            const totalDeductions = 60000 + otherDeductions;
-            const afterDeductions = Math.max(afterExpenses - totalDeductions, 0);
-            const maxDonationDeductible = afterDeductions * 0.1;
-            const donationDoubleDeduction = Math.min(donationDouble, maxDonationDeductible) * 2;
-            const afterDoubleDonation = Math.max(afterDeductions - donationDoubleDeduction, 0);
-            const donationSingleDeduction = Math.min(donationSingle, afterDoubleDonation * 0.1);
-            const netIncome = Math.max(afterDoubleDonation - donationSingleDeduction, 0);
-
-            const taxRates = [
-                { limit: 150000, rate: 0 },
-                { limit: 300000, rate: 0.10 },
-                { limit: 500000, rate: 0.15 },
-                { limit: 1000000, rate: 0.20 },
-                { limit: 2000000, rate: 0.25 },
-                { limit: 5000000, rate: 0.30 },
-                { limit: Infinity, rate: 0.35 },
-            ];
-
-            let tax = 0;
-            let remainingIncome = netIncome;
-
-            for (let i = 0; i < taxRates.length - 1; i++) {
-                const { limit, rate } = taxRates[i];
-                const nextLimit = taxRates[i + 1].limit;
-
-                if (remainingIncome > limit) {
-                    const taxableAmount = Math.min(remainingIncome, nextLimit) - limit;
-                    tax += taxableAmount * rate;
-                } else {
-                    break;
-                }
-            }
-
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `
-                <strong>ผลการคำนวณ:</strong><br>
-                รายได้ทั้งปี: ${annualIncome.toLocaleString()} บาท<br>
-                เงินได้ที่ยกเว้น (ประกันสังคม, กองทุน): ${totalExemptions.toLocaleString()} บาท<br>
-                ค่าใช้จ่ายเหมาจ่าย (ไม่เกิน 100,000): ${expenses.toLocaleString()} บาท<br>
-                รายได้หลังลดหย่อน: ${afterDeductions.toLocaleString()} บาท<br>
-                บริจาคสองเท่าที่ลดหย่อนได้: ${donationDoubleDeduction.toLocaleString()} บาท<br>
-                บริจาคหนึ่งเท่าที่ลดหย่อนได้: ${donationSingleDeduction.toLocaleString()} บาท<br>
-                เงินได้สุทธิ: ${netIncome.toLocaleString()} บาท<br>
-                <strong>ภาษีที่ต้องจ่าย: ${tax.toLocaleString()} บาท</strong>
-            `;
+        function unformatNumber(num) {
+            if (!num || num === '') return 0;
+            return parseFloat(num.replace(/,/g, '')) || 0;
         }
 
         function resetForm() {
-            document.getElementById('monthlyIncome').value = '';
-            document.getElementById('socialSecurity').value = '';
-            document.getElementById('providentFund').value = '';
-            document.getElementById('otherDeductions').value = '';
-            document.getElementById('donationDouble').value = '';
-            document.getElementById('donationSingle').value = '';
+            document.querySelectorAll('input').forEach(input => input.value = '');
             document.getElementById('result').innerHTML = '';
         }
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('blur', () => {
+                input.value = formatNumber(input.value);
+            });
+            input.addEventListener('focus', () => {
+                input.value = input.value.replace(/,/g, '');
+            });
+        });
+
+        function calculateTax() {
+            try {
+                const monthlySalary = unformatNumber(document.getElementById('monthly_salary').value);
+                const withheldTax = unformatNumber(document.getElementById('withheld_tax').value) * 12;
+                const gpfContribution = unformatNumber(document.getElementById('gpf_contribution').value) * 12;
+                const providentFund = unformatNumber(document.getElementById('provident_fund').value) * 12;
+                const spouseAllowance = unformatNumber(document.getElementById('spouse_allowance').value);
+                const childAllowance = unformatNumber(document.getElementById('child_allowance').value);
+                const parentAllowance = unformatNumber(document.getElementById('parent_allowance').value);
+                const otherDeductions = unformatNumber(document.getElementById('other_deductions').value);
+                const donationsDouble = unformatNumber(document.getElementById('donations_double').value);
+                const donationsSingle = unformatNumber(document.getElementById('donations_single').value);
+
+                const annualIncome = monthlySalary * 12;
+
+                // หักเงินได้ยกเว้น
+                const exemptedGpf = gpfContribution;
+                const exemptedProvident = Math.max(providentFund - 10000, 0);
+                const assessableIncome = annualIncome - exemptedGpf - exemptedProvident;
+
+                // หักค่าใช้จ่าย
+                const expenses = Math.min(assessableIncome * 0.50, 100000);
+                const taxableIncomeBeforeDeductions = assessableIncome - expenses;
+
+                // รวมค่าลดหย่อน
+                const personalAllowance = 60000;
+                const providentDeduction = Math.min(providentFund, 10000);
+                const totalDeductions =
+                    personalAllowance +
+                    spouseAllowance +
+                    childAllowance +
+                    parentAllowance +
+                    providentDeduction +
+                    otherDeductions;
+
+                const taxableIncome = Math.max(taxableIncomeBeforeDeductions - totalDeductions, 0);
+
+                // หักเงินบริจาค
+                const doubleDonationLimit = taxableIncome * 0.10;
+                const afterDoubleDonation = Math.max(
+                    taxableIncome - Math.min(donationsDouble * 2, doubleDonationLimit),
+                    0
+                );
+                const afterSingleDonation = Math.max(afterDoubleDonation - donationsSingle, 0);
+
+                // คำนวณภาษีตามอัตราก้าวหน้า
+                const taxRates = [
+                    { limit: 150000, rate: 0 },
+                    { limit: 300000, rate: 0.05 },
+                    { limit: 500000, rate: 0.10 },
+                    { limit: 750000, rate: 0.15 },
+                    { limit: 1000000, rate: 0.20 },
+                    { limit: 2000000, rate: 0.25 },
+                    { limit: 5000000, rate: 0.30 },
+                    { limit: Infinity, rate: 0.35 },
+                ];
+
+                let tax = 0;
+                let remainingIncome = afterSingleDonation;
+
+                for (const bracket of taxRates) {
+                    if (remainingIncome > bracket.limit) {
+                        tax +=
+                            (bracket.limit -
+                                (taxRates[taxRates.indexOf(bracket) - 1]?.limit || 0)) *
+                            bracket.rate;
+                    } else {
+                        tax +=
+                            (remainingIncome -
+                                (taxRates[taxRates.indexOf(bracket) - 1]?.limit || 0)) *
+                            bracket.rate;
+                        break;
+                    }
+                }
+
+                const taxDue = tax - withheldTax;
+
+                document.getElementById('result').innerHTML = `
+                    <strong>ผลการคำนวณ:</strong><br>
+                    รายได้ทั้งปี: ${formatNumber(annualIncome)} บาท<br>
+                    หักรายได้ยกเว้น (กบข.): ${formatNumber(exemptedGpf)} บาท<br>
+                    หักรายได้ยกเว้น (กองทุนสำรองเลี้ยงชีพ): ${formatNumber(
+                        exemptedProvident
+                    )} บาท<br>
+                    รายได้หลังหักรายได้ยกเว้น: ${formatNumber(assessableIncome)} บาท<br>
+                    หักค่าใช้จ่าย: ${formatNumber(expenses)} บาท<br>
+                    รายได้ก่อนหักลดหย่อน: ${formatNumber(
+                        taxableIncomeBeforeDeductions
+                    )} บาท<br>
+                    รวมค่าลดหย่อน: ${formatNumber(totalDeductions)} บาท<br>
+                    รายได้สุทธิ: ${formatNumber(taxableIncome)} บาท<br>
+                    รายได้หลังหักเงินบริจาค (สองเท่า): ${formatNumber(
+                        afterDoubleDonation
+                    )} บาท<br>
+                    รายได้หลังหักเงินบริจาค (หนึ่งเท่า): ${formatNumber(
+                        afterSingleDonation
+                    )} บาท<br>
+                    ภาษีที่ต้องชำระ: ${formatNumber(tax)} บาท<br>
+                    ภาษีที่ต้องจ่าย/คืน: ${formatNumber(taxDue)} บาท
+                `;
+            } catch (error) {
+                console.error("Error during calculation:", error);
+                alert("เกิดข้อผิดพลาดในการคำนวณ กรุณาตรวจสอบข้อมูลอีกครั้ง");
+            }
+        }
     </script>
+
 </body>
 </html>
+
